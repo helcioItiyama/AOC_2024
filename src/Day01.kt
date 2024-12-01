@@ -10,13 +10,13 @@ fun getData(input: List<String>): Pair<MutableList<Int>, MutableList<Int>> =
     }
 
 fun getData2(input: List<String>): Pair<HashMap<Int, Int>, MutableList<Int>> =
-input.fold(Pair(HashMap<Int, Int>(), mutableListOf<Int>())) {
-    (first, second), item ->
-    val (left, right) = item.split("  ")
-    first[left.trim().toInt()] = 0
-    second.add(right.trim().toInt())
-    Pair(first, second)
-}
+    input.fold(Pair(HashMap<Int, Int>(), mutableListOf<Int>())) {
+        (first, second), item ->
+        val (left, right) = item.split("  ")
+        first[left.trim().toInt()] = 0
+        second.add(right.trim().toInt())
+        Pair(first, second)
+    }
 
 fun main() {
     fun part1(input: List<String>): Int {
