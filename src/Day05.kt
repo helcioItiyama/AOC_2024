@@ -43,7 +43,7 @@ fun main() {
                 for (i in 1..reversed.lastIndex) {
                     var j = i - 1
                     val curr = reversed[i]
-                    while (j >= 0 && !(rules[curr]?.contains(reversed[j]) == true)) {
+                    while (j >= 0 && rules[curr]?.contains(reversed[j]) == false) {
                         reversed[j + 1] = reversed[j]
                         j--
                     }
