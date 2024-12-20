@@ -1,56 +1,49 @@
-data class MatrixAndEdges (
-    val row: Int,
-    val col: Int,
-    val sizes: Int,
-    val edges: Int,
-    val matrix: MutableList<MutableList<String>>
-)
+fun main() {
+    class Matrix(input: List<String>) {
+        val data = input
+            .map { it.split("").drop(1).dropLast(1).toMutableList() }
+            .toMutableList()
+        var row = 0
+        var col = 0
+        val sizes = data.size
+        val edges = 0
 
-fun getMatrixAndEdges(input: List<String>): MatrixAndEdges  {
-    val matrix = input
-        .map { it.split("").drop(1).dropLast(1).toMutableList() }
-        .toMutableList()
-    var r = 0
-    var c = 0
-    val sizes = matrix.size
-    val edges = 0
-
-    for (row in 0  until sizes) {
-        for (col in 0 until sizes) {
-            if(matrix[row][col] == "^") {
-                r = row
-                c= col
-                break
+        init {
+            for (r in 0  until sizes) {
+                for (c in 0 until sizes) {
+                    if(data[r][c] == "^") {
+                        row = r
+                        col= c
+                        break
+                    }
+                }
             }
         }
+
+        fun checkIfsItsBlocked(mr: Int, mc: Int) = data[row + mr][col + mc] == "#"
     }
 
-    return MatrixAndEdges(
-        row = r,
-        col = c,
-        sizes = sizes,
-        edges = edges,
-        matrix = matrix
-    )
-}
-
-fun main() {
     fun part1(input: List<String>): Int {
-        var (row, col, sizes, edges, matrix) = getMatrixAndEdges(input)
+        val matrix = Matrix(input)
         val positions = mutableSetOf<Pair<Int, Int>>()
         var movHor = -1
         var movVer = 0
 
         while (true) {
-            positions.add(Pair(row, col))
-            if (row + movHor < edges || row + movHor >= sizes || col + movVer < edges || col + movVer >= sizes) break
-            if (matrix[row + movHor][col + movVer] == "#") {
+            positions.add(Pair(matrix.row, matrix.col))
+            if (
+                matrix.row + movHor < matrix.edges
+                || matrix.row + movHor >= matrix.sizes
+                || matrix.col + movVer < matrix.edges
+                || matrix.col + movVer >= matrix.sizes
+            ) break
+            if (matrix.checkIfsItsBlocked(movHor,movVer)) {
                 val temp = movVer
                 movVer = -movHor
                 movHor = temp
             } else {
-                row += movHor
-                col += movVer
+                matrix.row += movHor
+                matrix.col += movVer
             }
         }
 
@@ -60,9 +53,9 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         var count = 0
-        val (row, col, sizes, edges, matrix) = getMatrixAndEdges(input)
+        val matrix = Matrix(input)
 
-        fun guardLoops (matrix: List<List<String>>, r: Int, c: Int): Boolean {
+        fun guardLoops (grid: List<List<String>>, r: Int, c: Int): Boolean {
             var movHor = -1
             var movVer = 0
             var nR = r
@@ -71,8 +64,13 @@ fun main() {
 
             while (true) {
                 positions.add("$nR,$nC,$movHor,$movVer")
-                if (nR + movHor < edges || nR + movHor >= sizes || nC + movVer < edges || nC + movVer >= sizes) return false
-                if (matrix[nR + movHor][nC + movVer] == "#") {
+                if (
+                    nR + movHor < matrix.edges
+                    || nR + movHor >= matrix.sizes
+                    || nC + movVer < matrix.edges
+                    || nC + movVer >= matrix.sizes
+                ) return false
+                if (grid[nR + movHor][nC + movVer] == "#") {
                     val temp = movVer
                     movVer = -movHor
                     movHor = temp
@@ -84,12 +82,12 @@ fun main() {
             }
         }
 
-        for (nR in 0 until sizes) {
-            for (nC in 0 until sizes) {
-                if (matrix[nR][nC] != ".") continue
-                matrix[nR][nC] = "#"
-                if (guardLoops(matrix, row, col)) count += 1
-                matrix[nR][nC] = "."
+        for (nR in 0 until matrix.sizes) {
+            for (nC in 0 until matrix.sizes) {
+                if (matrix.data[nR][nC] != ".") continue
+                matrix.data[nR][nC] = "#"
+                if (guardLoops(matrix.data, matrix.row, matrix.col)) count += 1
+                matrix.data[nR][nC] = "."
             }
         }
 
