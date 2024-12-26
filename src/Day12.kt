@@ -74,12 +74,71 @@ fun main() {
                 perimeter = 0
             }
         }
+        println(hasVisited)
 
         return sequence.sum()
     }
 
+    // this code was based on HyperNeutrino's
     fun part2(input: List<String>): Int {
-        return input.size
+        val grid = input.map { it.split("").drop(1).dropLast(1) }
+        val regions = mutableSetOf<MutableSet<Pair<Int, Int>>>()
+        val visited = mutableSetOf<Pair<Int, Int>>()
+
+        for (r in grid.indices) {
+            for (c in grid[0].indices) {
+                if (r to c in visited) continue
+                visited.add(r to c)
+                val region = mutableSetOf(r to c)
+                val queue = mutableListOf(r to c)
+                val plant = grid[r][c]
+
+                while (queue.isNotEmpty()) {
+                    val (curR, currC) = queue.removeFirst()
+                    val directions = listOf(curR - 1 to currC, curR + 1 to currC, curR to currC - 1, curR to currC + 1)
+                    for ((newR , newC) in directions) {
+                        if (newR < 0 || newC < 0 || newR > grid.lastIndex || newC > grid.lastIndex) continue
+                        if (grid[newR][newC] != plant) continue
+                        if (newR to newC in region) continue
+                        region.add(newR to newC)
+                        visited.add(newR to newC)
+                        queue.add(newR to newC)
+                    }
+                }
+                regions.add(region)
+            }
+        }
+
+        fun getDirections(r: Double, c: Double) = listOf(
+            r - 0.5 to c - 0.5,
+            r + 0.5 to c - 0.5,
+            r + 0.5 to c + 0.5,
+            r - 0.5 to c + 0.5
+        )
+
+        fun sides(region: List<Pair<Double, Double>>): Int {
+            val possibleCorners = mutableSetOf<Pair<Double, Double>>()
+            for ((r, c) in region) {
+                for ((cr, cc) in getDirections(r, c)) {
+                    possibleCorners.add(cr to cc)
+                }
+            }
+            var corners = 0
+            for ((currR, currC) in possibleCorners) {
+                val arrangement = getDirections(currR, currC).map { (r, c) -> r to c in region }
+                val number = arrangement.count { it }
+                val isOpposing =
+                    arrangement == listOf(true, false, true, false) || arrangement == listOf(false, true, false, true)
+                when (number) {
+                    1 -> corners++
+                    2 -> if (isOpposing) corners += 2
+                    3 -> corners++
+                }
+            }
+            return corners
+        }
+
+        return regions.sumOf { it.size * sides(it.map { (r, c) ->  r.toDouble() to c.toDouble()}) }
     }
 
     val input = readInput("Day12")
